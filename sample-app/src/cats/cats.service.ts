@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { Cat } from './types/cat.type';
 import { CatDto } from './types/cat.dto';
+import { UpdateCatDto } from './types/update.dto';
+import { NotFoundException } from '@nestjs/common/exceptions/not-found.exception';
 
 @Injectable()
 export class CatsService {
@@ -26,6 +28,13 @@ findAll(): Cat[] {
   return this.#cats;
 }
 
+//metodo para devolver un registro por id
+findOne(id: number): Cat {
+    const cat = this.#cats.find(cat => cat.id === id);
+    if (!cat) throw new NotFoundException(`gato con id ${id} no fue localizado`);
+    return cat;
+  }
+
 create(cat: CatDto) {
   // asignar un id al nuevo gato
   const newCat = {
@@ -39,5 +48,15 @@ create(cat: CatDto) {
   return newCat;
 }
 
-//implementar el resto de los metodos
+   //actualiza un registro
+update(id: number, UpdateCatDto: UpdateCatDto): Cat {
+        const index = this.#cats.findIndex(cat => cat.id === id);
+        this.#cats[index] = { ...this.#cats[index], ...UpdateCatDto };
+        return this.#cats[index];
+    }
+
+// elimina un registro
+delete(id: number): void {
+        this.#cats = this.#cats.filter(cat => cat.id !== id);
+    }
 }
